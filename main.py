@@ -3,7 +3,7 @@
 # Date:   July 2023
 
 from PARSEC.Parsec import createPMatrix, foilOrdinates
-from Airfoil import runAirfoil
+from Airfoil import runAirfoil, createPolarDict
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -32,6 +32,7 @@ X, Y = foilOrdinates(pMatrix)
 
 try:
     polar = runAirfoil(X, Y, "otherTest", 1e6, np.linspace(-5, 15, 21))
-    print(f"\n{polar}")
 except Exception as ex:
     print(ex)
+
+foilPolar = createPolarDict(polar, "otherTest")
