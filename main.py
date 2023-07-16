@@ -3,10 +3,12 @@
 # Date:   July 2023
 
 from PARSEC.Parsec import createPMatrix, foilOrdinates
+from BEZIER.Bezier import BEZIERfoil, plotBEZIER
 from Airfoil import runAirfoil, createPolarDict
 import numpy as np
 import matplotlib.pyplot as plt
 
+"""PARSEC EXAMPLE"""
 pArr = [
     0.0130,     # p1  - rLE Leading-edge radius
     0.2876,     # p2  - XS Upper crest position in horizontal coordinates
@@ -24,15 +26,37 @@ pArr = [
 pMatrix = createPMatrix(pArr)
 X, Y = foilOrdinates(pMatrix)
 
-# plt.plot(X, Y)
-# plt.xlabel('x')
-# plt.ylabel('y')
-# plt.gca().set_aspect('equal')
-# plt.show()
+plt.plot(X, Y)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title("PARSEC Airfoil")
+plt.gca().set_aspect('equal')
+plt.show()
 
-try:
-    polar = runAirfoil(X, Y, "otherTest", 1e6, np.linspace(-5, 15, 21))
-except Exception as ex:
-    print(ex)
+# try:
+#     polar = runAirfoil(X, Y, "otherTest", 1e6, np.linspace(-5, 15, 21))
+# except Exception as ex:
+#     print(ex)
+#
+# foilPolar = createPolarDict(polar, "otherTest")
 
-foilPolar = createPolarDict(polar, "otherTest")
+"""BEZIER EXAMPLE"""
+
+controlPoints = [
+    [1, 0.001],         # trailing edge (top)
+    [0.76, 0.08],
+    [0.52, 0.125],
+    [0.25, 0.12],
+    [0.1, 0.08],
+    [0, 0.03],          # leading edge (top)
+    [0, -0.03],         # leading edge (bottom)
+    [0.15, -0.08],
+    [0.37, -0.01],
+    [0.69, 0.04],
+    [1, -0.001]         # trailing edge (bottom)
+]
+
+X, Y = BEZIERfoil(controlPoints, 16)
+plotBEZIER(X, Y, controlPoints)
+
+plt.show()
