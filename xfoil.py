@@ -35,7 +35,7 @@ def polar(afile, re, *args,**kwargs):
     return data
 
 
-def calc_polar(afile, re, polarfile, alfaseq=[], clseq=[], refine=True, max_iter=100, n=None, loud=True, visual=True):
+def calc_polar(afile, re, polarfile, alfaseq=[], clseq=[], refine=True, max_iter=100, n=None, loud=False, visual=False):
     """run xfoil to generate polar file
     
     Parameters
@@ -114,7 +114,7 @@ def calc_polar(afile, re, polarfile, alfaseq=[], clseq=[], refine=True, max_iter
     write2xfoil('\n')
 
     try:
-        pxfoil.communicate(str('quit').encode('ascii'), timeout=60)
+        pxfoil.communicate(str('quit').encode('ascii'), timeout=15)
     except subprocess.TimeoutExpired:
         pxfoil.kill()
 

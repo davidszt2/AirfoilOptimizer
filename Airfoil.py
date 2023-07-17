@@ -4,6 +4,7 @@
 
 from xfoil import polar
 import numpy as np
+import os
 
 
 def createDATFile(X, Y, name):
@@ -23,6 +24,7 @@ def runAirfoil(X, Y, name, Re, alphaList):
     createDATFile(X, Y, name)
 
     foilPolar = polar(f"{name}.dat", Re, alphaList)
+    os.remove(f"./{name}.dat")
 
     return foilPolar
 
@@ -74,3 +76,23 @@ def createPolarDict(polar, name):
     foilPolar['cdminloc'] = foilPolar['cl'][cdminIdx]
 
     return foilPolar
+
+
+def getCLmax(polar):
+    return max(polar['cl'])
+
+
+def getLDmax(polar):
+    return max(polar['ld'])
+
+
+def getCDmin(polar):
+    return min(polar['cd'])
+
+
+def getLDmaxLOC(polar):
+    return polar['ldmaxloc']
+
+
+def getCDminLOC(polar):
+    return polar['cdminloc']
