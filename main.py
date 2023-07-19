@@ -2,7 +2,7 @@
 # Author: David Moeller Sztajnbok
 # Date:   July 2023
 
-from PARSEC.Parsec import createPMatrix, foilOrdinates
+from PARSEC.Parsec import createPMatrix, PARSECfoil
 from BEZIER.Bezier import BEZIERfoil, plotBEZIER
 import Airfoil
 import numpy as np
@@ -27,7 +27,7 @@ import os
 #     ]
 #
 # pMatrix = createPMatrix(pArr)
-# X, Y = foilOrdinates(pMatrix)
+# X, Y = PARSECfoil(pMatrix)
 #
 # plt.plot(X, Y)
 # plt.xlabel('x')
@@ -84,7 +84,7 @@ import os
 def fitnessFunction(ga_instance, solution, solution_idx):
     # Run airfoil with solution and get aerodynamic parameters
 
-    X, Y = foilOrdinates(solution)
+    X, Y = PARSECfoil(solution)
     Re = 1e6
     alphaArray = np.linspace(-5, 15, 21)
     generationNum = ga_instance.generations_completed
