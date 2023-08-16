@@ -5,10 +5,10 @@
 from PARSEC.Parsec import createPMatrix, PARSECfoil
 from BEZIER.Bezier import BEZIERfoil, plotBEZIER
 import Airfoil
+import GATools
+import matplotlib.pyplot as plt
 import numpy as np
 import math
-import matplotlib.pyplot as plt
-import pygad
 import os
 
 """PARSEC EXAMPLE"""
@@ -46,24 +46,38 @@ import os
 
 """BEZIER EXAMPLE"""
 
+controlPoints = [
+    [1, 0.001],         # trailing edge (top)
+    [0.76, 0.08],
+    [0.52, 0.125],
+    [0.25, 0.12],
+    [0.1, 0.08],
+    [0, 0.03],          # leading edge (top)
+    [0, -0.03],         # leading edge (bottom)
+    [0.15, -0.08],
+    [0.37, -0.01],
+    [0.69, 0.04],
+    [1, -0.001]         # trailing edge (bottom)
+]
+#
 # controlPoints = [
-#     [1, 0.001],         # trailing edge (top)
-#     [0.76, 0.08],
-#     [0.52, 0.125],
-#     [0.25, 0.12],
-#     [0.1, 0.08],
-#     [0, 0.03],          # leading edge (top)
-#     [0, -0.03],         # leading edge (bottom)
-#     [0.15, -0.08],
-#     [0.37, -0.01],
-#     [0.69, 0.04],
-#     [1, -0.001]         # trailing edge (bottom)
+#     1, 0.001,         # trailing edge (top)
+#     0.76, 0.08,
+#     0.52, 0.125,
+#     0.25, 0.12,
+#     0.1, 0.08,
+#     0, 0.03,          # leading edge (top)
+#     0, -0.03,         # leading edge (bottom)
+#     0.15, -0.08,
+#     0.37, -0.01,
+#     0.69, 0.04,
+#     1, -0.001         # trailing edge (bottom)
 # ]
 #
-# X, Y = BEZIERfoil(controlPoints, 16)
-# plotBEZIER(X, Y, controlPoints)
-#
-# plt.show()
+X, Y = BEZIERfoil(controlPoints, 16)
+plotBEZIER(X, Y, controlPoints)
+
+plt.show()
 
 """GENETIC ALGORITHM IMPLEMENTATION"""
 # pArr = [
@@ -120,29 +134,6 @@ def fitnessFunction(ga_instance, solution, solution_idx):
     else:
         return 0
 
-num_generations = 50
-num_parents_mating = 4
-num_genes = 11
-parent_selection_type = "sss"
-keep_parents = 2
-crossover_type = "single_point"
-mutation_type = "random"
-mutation_percent_genes = 10
-
-# gene_space = [
-#     {'low': 0.01, 'high': 0.03},
-#     {'low': 0.1, 'high': 0.7},
-#     {'low': 0.03, 'high': 0.1},
-#     {'low': -0.6, 'high': -0.2},
-#     {'low': 0.1, 'high': 0.7},
-#     {'low': -0.03, 'high': -0.1},
-#     {'low': 0.2, 'high': 0.6},
-#     {'low': 0, 'high': 0.025},
-#     {'low': 0, 'high': 0.005},
-#     {'low': -2.5, 'high': 2.5},
-#     {'low': 0, 'high': 2.5}
-# ]
-
 gene_space = [
     {'low': 0.01, 'high': 0.03},    # p1  - rLE Leading-edge radius
     {'low': 0.1, 'high': 0.7},      # p2  - XS Upper crest position in horizontal coordinates
@@ -157,23 +148,5 @@ gene_space = [
     {'low': 0, 'high': 5}           # p11 - βT E Trailing-edge wedge angle
 ]
 
-ga_instance = pygad.GA(num_generations=num_generations,
-                       num_parents_mating=num_parents_mating,
-                       fitness_func=fitnessFunction,
-                       num_genes=num_genes,
-                       sol_per_pop=20,
-                       parent_selection_type=parent_selection_type,
-                       keep_parents=keep_parents,
-                       crossover_type=crossover_type,
-                       mutation_type=mutation_type,
-                       mutation_percent_genes=mutation_percent_genes,
-                       gene_space=gene_space,
-                       save_solutions=True)
-
-ga_instance.run()
-ga_instance.save('LDmaxOptimizedV1')
-ga_instance.plot_fitness()
-solution, solution_fitness, solution_idx = ga_instance.best_solution()
-print("Parameters of the best solution : {solution}".format(solution=solution))
-print("Fitness value of the best solution = {solution_fitness}".format(solution_fitness=solution_fitness))
-print("Index of the best solution : {solution_idx}".format(solution_idx=solution_idx))
+# GATools.runGA(gene_space, fitnessFunction, 'test')
+# GATools.animateGA('test', 'testAnimation', 'PARSEC')

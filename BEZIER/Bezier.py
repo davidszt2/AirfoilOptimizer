@@ -61,3 +61,8 @@ def plotBEZIER(X, Y, controlPoints):
     plt.gca().set_aspect('equal')
 
     return
+
+
+def listToCP(listCP):
+    it = iter(listCP)
+    return [list(coord) for coord in zip(it, it)]
