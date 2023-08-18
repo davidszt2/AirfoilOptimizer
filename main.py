@@ -88,23 +88,25 @@ def fitnessFunction(ga_instance, solution, solution_idx):
 
     X, Y = PARSECfoil(solution)
     Re = 1e6
-    alphaArray = np.linspace(-5, 15, 21)
+    # alphaArray = np.linspace(-5, 15, 21)
+    clArray = [0.14]
     generationNum = ga_instance.generations_completed
     foilName = f"Gen{generationNum}Sol{solution_idx}"
 
     print(f"GENERATION {generationNum}\nSOLUTION: {solution_idx}")
 
     try:
-        polar = Airfoil.runAirfoil(X, Y, foilName, Re, alphaArray)
+        # polar = Airfoil.runAirfoil(X, Y, foilName, Re, alphaArray)
+        polar = Airfoil.runAirfoil(X, Y, foilName, Re, clArray, iterative='cl')
         os.remove(f"./{foilName}.dat")
     except Exception as ex:
         print("EXCEPTION!")
         os.remove(f"./{foilName}.dat")
         return 0
 
-    if len(polar['a']) < 0.25*len(alphaArray):
-        print("TOO SHORT CONVERGENCE!!")
-        return 0
+    # if len(polar['a']) < 0.25*len(alphaArray):
+    #     print("TOO SHORT CONVERGENCE!!")
+    #     return 0
 
     foilPolar = Airfoil.createPolarDict(polar, foilName)
     CLmax = Airfoil.getCLmax(foilPolar)
@@ -136,11 +138,10 @@ gene_space = [
     {'low': 0, 'high': 5}           # p11 - βT E Trailing-edge wedge angle
 ]
 
-# GATools.runGA(gene_space, fitnessFunction, 'test')
-# GATools.animateGA('test', 'testAnimation', 'PARSEC')
+GATools.runGA(gene_space, fitnessFunction, 'Single CL GA PARSEC')
+GATools.animateGA('Single CL GA PARSEC', 'Single CL GA PARSEC Anim', 'PARSEC')
 
 """GENETIC ALGORITHM IMPLEMENTATION - GA BEZIER"""
-#
 # def fitnessFunction(ga_instance, solution, solution_idx):
 #     # Run airfoil with solution and get aerodynamic parameters
 #     controlPoints = listToCP(solution)

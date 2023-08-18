@@ -19,10 +19,19 @@ def createDATFile(X, Y, name):
     return
 
 
-def runAirfoil(X, Y, name, Re, alphaList):
+def runAirfoil(X, Y, name, Re, iterList, iterative='alpha'):
+    # X, Y      : foil coordinates
+    # name      : name for .dat file
+    # Re        : Reynold's number
+    # iterList  : list of iterative parameters (AoA or CL depending on iterative parameter)
+    # iterative : 'alpha' if iterList are AoAs or 'cl' if iterList are CLs
+
     createDATFile(X, Y, name)
 
-    foilPolar = polar(f"{name}.dat", Re, alphaList)
+    if iterative == 'alpha':
+        foilPolar = polar(f"{name}.dat", Re, alfaseq=iterList)
+    elif iterative == 'cl':
+        foilPolar = polar(f"{name}.dat", Re, clseq=iterList)
 
     return foilPolar
 
