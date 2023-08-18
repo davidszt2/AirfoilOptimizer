@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import animation, rc
 from IPython.display import HTML, Image
 from PARSEC.Parsec import PARSECfoil
-from BEZIER.Bezier import BEZIERfoil
+from BEZIER.Bezier import BEZIERfoil, listToCP
 
 
 def runGA(gene_space, fitnessFunction, name):
@@ -62,7 +62,7 @@ def animateGA(gaName, fileName, method):
 
     """ANIMATION"""
     # Initial
-    X, Y = PARSECfoil(solutionsArr[0]) if method == "PARSEC" else BEZIERfoil(solutionsArr[0], 16)
+    X, Y = PARSECfoil(solutionsArr[0]) if method == "PARSEC" else BEZIERfoil(listToCP(solutionsArr[0]), 16)
     fig, ax = plt.subplots()
     ax.set_xlim(( 0, 1))
     ax.set_ylim(( -0.5, 0.5))
@@ -76,7 +76,7 @@ def animateGA(gaName, fileName, method):
 
 
     def animate(i):
-        X, Y = PARSECfoil(solutionsArr[i]) if method == "PARSEC" else BEZIERfoil(solutionsArr[i], 16)
+        X, Y = PARSECfoil(solutionsArr[i]) if method == "PARSEC" else BEZIERfoil(listToCP(solutionsArr[i]), 16)
         line.set_data(X, Y)
         plt.gca().set_aspect('equal')
         return (line,)
