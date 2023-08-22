@@ -36,7 +36,10 @@ def runAirfoil(X, Y, name, Re, iterList, iterative='alpha'):
     return foilPolar
 
 
-def createPolarDict(polar, name):
+def createPolarDict(polar, name, type):
+
+    # type - cl or alpha depending on whether iterating through cl or alpha
+
     foilPolar = {
         'name': name,   # Airfoil Name (identifier)
         'alpha': [],    # Angle of Attack Array
@@ -49,38 +52,57 @@ def createPolarDict(polar, name):
         'cdminloc': 0   # Location of Cdmin (Cl at which it occurs)
     }
 
+    # print(polar)
+
     alpha = polar['a'].copy()
     cl = polar['cl'].copy()
     cd = polar['cd'].copy()
 
-    completeAlpha = set(range(-5, 16))
-    missingAlpha = completeAlpha - set(alpha)
+    if type == "alpha":
+        completeAlpha = set(range(-5, 16))
+        missingAlpha = completeAlpha - set(alpha)
 
-    newAlpha = np.concatenate((alpha, list(missingAlpha)))
-    newCl = np.concatenate((cl, [np.nan] * len(missingAlpha)))
-    newCd = np.concatenate((cd, [np.nan] * len(missingAlpha)))
+        newAlpha = np.concatenate((alpha, list(missingAlpha)))
+        newCl = np.concatenate((cl, [np.nan] * len(missingAlpha)))
+        newCd = np.concatenate((cd, [np.nan] * len(missingAlpha)))
 
-    sortedLists = sorted(zip(newAlpha, newCl, newCd), key=lambda x: x[0])
-    sortedAlpha, sortedCl, sortedCd = zip(*sortedLists)
+        sortedLists = sorted(zip(newAlpha, newCl, newCd), key=lambda x: x[0])
+        sortedAlpha, sortedCl, sortedCd = zip(*sortedLists)
 
-    sortedAlpha = list(sortedAlpha)
-    sortedCl = list(sortedCl)
-    sortedCd = list(sortedCd)
+        sortedAlpha = list(sortedAlpha)
+        sortedCl = list(sortedCl)
+        sortedCd = list(sortedCd)
 
-    foilPolar['alpha'] = sortedAlpha
-    foilPolar['cl'] = sortedCl
-    foilPolar['cd'] = sortedCd
+        foilPolar['alpha'] = sortedAlpha
+        foilPolar['cl'] = sortedCl
+        foilPolar['cd'] = sortedCd
 
-    # Derived parameters
-    foilPolar['ld'] = list(np.array(sortedCl)/np.array(sortedCd))
-    foilPolar['ldmax'] = max(foilPolar['ld'])
-    foilPolar['cdmin'] = min(foilPolar['cd'])
+        # Derived parameters
+        foilPolar['ld'] = list(np.array(sortedCl)/np.array(sortedCd))
+        foilPolar['ldmax'] = np.nanmax(foilPolar['ld'])
+        foilPolar['cdmin'] = np.nanmin(foilPolar['cd'])
 
-    ldmaxIdx = foilPolar['ld'].index(foilPolar['ldmax'])
-    cdminIdx = foilPolar['cd'].index(foilPolar['cdmin'])
+        ldmaxIdx = foilPolar['ld'].index(foilPolar['ldmax'])
+        cdminIdx = foilPolar['cd'].index(foilPolar['cdmin'])
 
-    foilPolar['ldmaxloc'] = foilPolar['cl'][ldmaxIdx]
-    foilPolar['cdminloc'] = foilPolar['cl'][cdminIdx]
+        foilPolar['ldmaxloc'] = foilPolar['cl'][ldmaxIdx]
+        foilPolar['cdminloc'] = foilPolar['cl'][cdminIdx]
+
+    elif type == "cl":
+        foilPolar['alpha'] = list(alpha)
+        foilPolar['cl'] = list(cl)
+        foilPolar['cd'] = list(cd)
+
+        # Derived parameters
+        foilPolar['ld'] = list(np.array(cl)/np.array(cd))
+        # foilPolar['ldmax'] = np.nanmax(foilPolar['ld'])
+        # foilPolar['cdmin'] = np.nanmin(foilPolar['cd'])
+
+        # ldmaxIdx = foilPolar['ld'].index(foilPolar['ldmax'])
+        # cdminIdx = foilPolar['cd'].index(foilPolar['cdmin'])
+        #
+        # foilPolar['ldmaxloc'] = foilPolar['cl'][ldmaxIdx]
+        # foilPolar['cdminloc'] = foilPolar['cl'][cdminIdx]
 
     return foilPolar
 

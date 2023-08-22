@@ -108,20 +108,29 @@ def fitnessFunction(ga_instance, solution, solution_idx):
     #     print("TOO SHORT CONVERGENCE!!")
     #     return 0
 
-    foilPolar = Airfoil.createPolarDict(polar, foilName)
-    CLmax = Airfoil.getCLmax(foilPolar)
-    LDmax = Airfoil.getLDmax(foilPolar)
-    CDmin = Airfoil.getCDmin(foilPolar)
-    LDmaxLOC = Airfoil.getLDmaxLOC(foilPolar)
-    CDminLOC = Airfoil.getCDminLOC(foilPolar)
+    foilPolar = Airfoil.createPolarDict(polar, foilName, "cl")
 
-    fitness = LDmax
+    # print(foilPolar)
 
-    print(f"FITNESS: {fitness}\n\n")
+    try:
+        CLmax = Airfoil.getCLmax(foilPolar)
+        LDmax = Airfoil.getLDmax(foilPolar)
+        CDmin = Airfoil.getCDmin(foilPolar)
+        LDmaxLOC = Airfoil.getLDmaxLOC(foilPolar)
+        CDminLOC = Airfoil.getCDminLOC(foilPolar)
 
-    if not math.isnan(fitness):
-        return fitness
-    else:
+        fitness = LDmax
+
+        print(f"FITNESS: {fitness}\n\n")
+
+        if not math.isnan(fitness):
+            return fitness
+        else:
+            return 0
+
+    except Exception as ex:
+        print(f"Failed | {ex} | FITNESS = 0")
+        print()
         return 0
 
 gene_space = [

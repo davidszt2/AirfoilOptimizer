@@ -8,7 +8,7 @@ from BEZIER.Bezier import BEZIERfoil, listToCP
 
 
 def runGA(gene_space, fitnessFunction, name):
-    num_generations = 50
+    num_generations = 100
     num_parents_mating = 4
     num_genes = 11
     parent_selection_type = "sss"
@@ -35,7 +35,7 @@ def runGA(gene_space, fitnessFunction, name):
                            num_parents_mating=num_parents_mating,
                            fitness_func=fitnessFunction,
                            num_genes=num_genes,
-                           sol_per_pop=20,
+                           sol_per_pop=50,
                            parent_selection_type=parent_selection_type,
                            keep_parents=keep_parents,
                            crossover_type=crossover_type,
