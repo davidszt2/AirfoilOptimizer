@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation, rc
 from IPython.display import HTML, Image
+
+import Airfoil
 from PARSEC.Parsec import PARSECfoil
 from BEZIER.Bezier import BEZIERfoil, listToCP
 
@@ -88,3 +90,28 @@ def animateGA(gaName, fileName, method):
     f = f"./{fileName}.gif"
     writergif = animation.PillowWriter(fps=30)
     anim.save(f, writer=writergif)
+
+
+def plotBestGA(gaName, parametrization):
+    ga_instance = pygad.load(gaName)
+
+    solution, solution_fitness, solution_idx = ga_instance.best_solution()
+
+    if parametrization=="PARSEC":
+        X, Y = PARSECfoil(solution)
+        plt.gca().set_aspect('equal')
+        plt.plot(X, Y)
+        plt.title(f"Solution (fitness = {solution_fitness})")
+        plt.show()
+
+
+def createDAT(gaName, parametrization, foilName):
+    ga_instance = pygad.load(gaName)
+
+    solution, solution_fitness, solution_idx = ga_instance.best_solution()
+
+    if parametrization=="PARSEC":
+        X, Y = PARSECfoil(solution)
+        Airfoil.createDATFile(X, Y, foilName)
+
+createDAT('Single CL GA PARSEC', 'PARSEC', '014CL')
