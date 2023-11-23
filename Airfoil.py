@@ -2,8 +2,7 @@
 # Author: David Moeller Sztajnbok
 # Date:   July 2023
 
-from xfoil_alt import singleAlpha, alphaRange, singleCL, CLRange
-import numpy as np
+from xfoil import singleAlpha, alphaRange, singleCL, CLRange
 
 
 def createDATFile(X, Y, name):
