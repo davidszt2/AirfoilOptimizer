@@ -7,6 +7,8 @@ Custom tools for running XFOIL
 
 import subprocess
 import os
+import numpy as np
+
 
 class AirfoilPolar:
     def __init__(self, alpha, CL, CD, CDp, CM, Top_Xtr, Bot_Xtr):
@@ -17,8 +19,10 @@ class AirfoilPolar:
         self.CM = CM
         self.Top_Xtr = Top_Xtr
         self.Bot_Xtr = Bot_Xtr
+        self.CLCD = list(np.array(CL)/np.array(CD))
 
-def parse_polar_file(filename):
+
+def parsePolar(filename):
     with open(filename, 'r') as f:
         lines = f.readlines()[12:]
 
@@ -35,45 +39,49 @@ def parse_polar_file(filename):
 
     return AirfoilPolar(alpha, CL, CD, CDp, CM, Top_Xtr, Bot_Xtr)
 
-def run_xfoil(routine, xfoil_path='./xfoil'):
-    process = subprocess.Popen(xfoil_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    stdout, stderr = process.communicate(routine)
+
+def runXFOIL(routine, xfoilPath='./xfoil'):
+    process = subprocess.Popen(xfoilPath, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    stdout, stderr = process.communicate(routine, timeout=15)
 
     if os.path.exists('polar.dat'):
-        polar_data = parse_polar_file('polar.dat')
+        polar = parsePolar('polar.dat')
         os.remove('polar.dat')
     else:
         print(f"Error running XFOIL: {stderr}")
-        polar_data = None
+        polar = None
 
     if os.path.exists('polar.dump'):
         os.remove('polar.dump')
 
-    return polar_data
+    return polar
 
-def alpha_range(airfoil, Re, alpha_start, alpha_end, alpha_increment):
+
+def alphaRange(airfoil, Re, alphaStart, alphaEnd, alphaStep):
     routine = f"""LOAD {airfoil}
                 OPER
                 Visc {Re}
                 PACC
                 polar.dat
                 polar.dump
-                ASEQ {alpha_start} {alpha_end} {alpha_increment}
+                ASEQ {alphaStart} {alphaEnd} {alphaStep}
                 """
-    return run_xfoil(routine)
+    return runXFOIL(routine)
 
-def cl_range(airfoil, Re, cl_start, cl_end, cl_increment):
+
+def CLRange(airfoil, Re, CLStart, CLEnd, CLStep):
     routine = f"""LOAD {airfoil}
                 OPER
                 Visc {Re}
                 PACC
                 polar.dat
                 polar.dump
-                CSEQ {cl_start} {cl_end} {cl_increment}
+                CSEQ {CLStart} {CLEnd} {CLStep}
                 """
-    return run_xfoil(routine)
+    return runXFOIL(routine)
 
-def single_cl(airfoil, Re, CL):
+
+def singleCL(airfoil, Re, CL):
     routine = f"""LOAD {airfoil}
                 OPER
                 Visc {Re}
@@ -82,9 +90,10 @@ def single_cl(airfoil, Re, CL):
                 polar.dump
                 CL {CL}
                 """
-    return run_xfoil(routine)
+    return runXFOIL(routine)
 
-def single_alpha(airfoil, Re, alpha):
+
+def singleAlpha(airfoil, Re, alpha):
     routine = f"""LOAD {airfoil}
                 OPER
                 Visc {Re}
@@ -93,6 +102,7 @@ def single_alpha(airfoil, Re, alpha):
                 polar.dump
                 A {alpha}
                 """
-    return run_xfoil(routine)
+    return runXFOIL(routine)
 
-# alpha_range_polar = alpha_range('clarky.dat', 1e6, 0, 15, 0.5)
+# polar = alphaRange('clarky.dat', 1e6, 0, 15, 1)
+# print(polar.__dict__)
