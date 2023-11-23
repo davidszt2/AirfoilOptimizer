@@ -2,58 +2,70 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import splprep, splev
 
-def load_airfoil_data(file_path):
+def loadAirfoil(file_path):
     return np.loadtxt(file_path, skiprows=1)
 
-def separate_surfaces(airfoil_data):
+def sepSurfaces(airfoil_data):
     leading_edge_index = np.argmin(airfoil_data[:, 0])
     upper_surface_data = airfoil_data[:leading_edge_index+1][::-1]
     lower_surface_data = airfoil_data[leading_edge_index:]
     return upper_surface_data, lower_surface_data
 
-def chebyshev_nodes(num_control_points):
-    i = np.arange(num_control_points)
-    nodes = np.cos((2 * i + 1) * np.pi / (2 * num_control_points))
+def chebyshevNodes(nPoints):
+    i = np.arange(nPoints)
+    nodes = np.cos((2 * i + 1) * np.pi / (2 * nPoints))
     nodes = 0.5 * (nodes + 1)  # Shift nodes to the interval [0, 1]
     return nodes
 
-def fit_spline_and_select_control_points_chebyshev(surface_data, num_control_points):
-    tck, u = splprep([surface_data[:, 0], surface_data[:, 1]], s=0, k=3)
-    chebyshev_u = chebyshev_nodes(num_control_points)
-    chebyshev_points = splev(chebyshev_u, tck)
-    return np.column_stack(chebyshev_points), tck
+def airfoilControlPoints(airfoil, nPoints):
+    airfoilData = loadAirfoil(airfoil)
+    upperSurf, lowerSurf = sepSurfaces(airfoilData)
 
-# Set these variables directly in your code or as part of a function call.
-dat_file_path = '../clarky.dat'  # Replace with your actual .dat file path
-num_control_points = 20  # Adjust as needed for your specific case
+    # Upper Surface
+    tckUpper, uUpper = splprep([upperSurf[:, 0], upperSurf[:, 1]], s=0, k=3)
+    chebyshev_uUpper = chebyshevNodes(nPoints)
+    chebyshev_pointsUpper = splev(chebyshev_uUpper, tckUpper)
+    chebyshev_pointsUpperConcat = [[i, j] for i, j in zip(chebyshev_pointsUpper[0], chebyshev_pointsUpper[1])]
 
-# Load airfoil data from the specified file
-airfoil_data = load_airfoil_data(dat_file_path)
+    # Lower Surface
+    tckLower, uLower = splprep([lowerSurf[:, 0], lowerSurf[:, 1]], s=0, k=3)
+    chebyshev_uLower = chebyshevNodes(nPoints)
+    chebyshev_pointsLower = splev(chebyshev_uLower, tckLower)
+    chebyshev_pointsLowerConcat = [[i, j] for i, j in zip(chebyshev_pointsLower[0], chebyshev_pointsLower[1])]
 
-# Separate the airfoil data into upper and lower surfaces
-upper_surface_data, lower_surface_data = separate_surfaces(airfoil_data)
+    return np.vstack((chebyshev_pointsUpperConcat, chebyshev_pointsLowerConcat))
 
-# Fit cubic splines to the upper and lower surfaces using Chebyshev nodes
-control_points_upper_cheb, tck_upper_cheb = fit_spline_and_select_control_points_chebyshev(upper_surface_data, num_control_points)
-control_points_lower_cheb, tck_lower_cheb = fit_spline_and_select_control_points_chebyshev(lower_surface_data, num_control_points)
+def BEZIERfoil(control_points, num_points=150):
+    # Split control points into upper and lower surfaces
+    half = len(control_points) // 2
+    upper_control_points = control_points[:half]
+    lower_control_points = control_points[half:]
 
-# Plot the airfoil data and control points
-plt.figure(figsize=(12, 6))
-plt.plot(airfoil_data[:, 0], airfoil_data[:, 1], 'k.-', label='ClarkY')
-plt.plot(control_points_upper_cheb[:, 0], control_points_upper_cheb[:, 1], 'ro', label='Upper Control Points (Chebyshev)')
-plt.plot(control_points_lower_cheb[:, 0], control_points_lower_cheb[:, 1], 'bo', label='Lower Control Points (Chebyshev)')
+    # Fit a spline for the upper surface
+    tck_upper, _ = splprep([upper_control_points[:, 0], upper_control_points[:, 1]], s=0, k=3)
+    u_upper_fine = np.linspace(0, 1, num_points // 2)
+    x_upper_fine, y_upper_fine = splev(u_upper_fine, tck_upper)
 
-# Generate a dense set of points for spline evaluation
-u_dense = np.linspace(0, 1, 1000)
-x_dense, y_dense_upper = splev(u_dense, tck_upper_cheb)
-_, y_dense_lower = splev(u_dense, tck_lower_cheb)
-plt.plot(x_dense, y_dense_upper, 'r--', label='Upper Surface Spline (Chebyshev)')
-plt.plot(x_dense, y_dense_lower, 'b--', label='Lower Surface Spline (Chebyshev)')
+    # Fit a spline for the lower surface
+    tck_lower, _ = splprep([lower_control_points[:, 0], lower_control_points[:, 1]], s=0, k=3)
+    u_lower_fine = np.linspace(0, 1, num_points // 2)
+    x_lower_fine, y_lower_fine = splev(u_lower_fine, tck_lower)
 
-plt.legend()
-plt.title('Airfoil with Chebyshev Node Fitted Cubic Spline Control Points')
-plt.xlabel('Chord Length')
-plt.ylabel('Profile Height')
+    # Combine the results
+    x_fine = np.concatenate([x_upper_fine, x_lower_fine[::-1]])
+    y_fine = np.concatenate([y_upper_fine, y_lower_fine[::-1]])
+
+    return x_fine, y_fine
+
+
+airfoil = '../clarky.dat'
+nCP = 10
+
+controlPoints = airfoilControlPoints(airfoil, nCP)
+x, y = BEZIERfoil(controlPoints, 1000)
+print(controlPoints)
+plt.figure()
+plt.plot(x, y)
 plt.axis('equal')
 plt.grid(True)
 plt.show()
