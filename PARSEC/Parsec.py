@@ -114,7 +114,7 @@ def asuct(pMatrix):
     return asuct
 
 """CURVE GENERATION"""
-def foilOrdinates(pMatrix, xArr=np.linspace(0, 1, 75)):
+def PARSECfoil(pMatrix, xArr=np.linspace(0, 1, 75)):
     asuction = asuct(pMatrix)
     apressure = apress(pMatrix)
 
